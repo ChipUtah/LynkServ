@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { stripe, getPriceId, trialDaysRemaining } from "@/lib/stripe";
+import { getStripe, getPriceId, trialDaysRemaining } from "@/lib/stripe";
 import type { Provider } from "@/lib/supabase/types";
 
 type Plan    = "basic" | "standard" | "featured";
@@ -39,7 +39,7 @@ export async function createCheckoutSession(
   const applyDiscount    = provider.founding_member && !!foundingCouponId;
 
   try {
-    const session = await stripe.checkout.sessions.create({
+    const session = await getStripe().checkout.sessions.create({
       mode: "subscription",
       payment_method_collection: "always", // collect card even during trial
       ...(provider.stripe_customer_id
@@ -85,7 +85,7 @@ export async function createBillingPortalSession(): Promise<
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
   try {
-    const session = await stripe.billingPortal.sessions.create({
+    const session = await getStripe().billingPortal.sessions.create({
       customer:   provider.stripe_customer_id,
       return_url: `${siteUrl}/provider/dashboard/billing`,
     });

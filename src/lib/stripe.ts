@@ -1,9 +1,17 @@
 import Stripe from "stripe";
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  apiVersion: "2026-05-27.dahlia" as any,
-});
+// Lazy singleton — avoids throwing at build time when STRIPE_SECRET_KEY is not set
+let _stripe: Stripe | undefined;
+
+export function getStripe(): Stripe {
+  if (!_stripe) {
+    const key = process.env.STRIPE_SECRET_KEY;
+    if (!key) throw new Error("STRIPE_SECRET_KEY environment variable is not configured");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    _stripe = new Stripe(key, { apiVersion: "2026-05-27.dahlia" as any });
+  }
+  return _stripe;
+}
 
 // ─── Price ID → Tier ──────────────────────────────────────────
 

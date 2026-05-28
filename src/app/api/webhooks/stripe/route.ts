@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import Stripe from "stripe";
-import { stripe, getTierFromPriceId } from "@/lib/stripe";
+import { getStripe, getTierFromPriceId } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
 
   let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(
+    event = getStripe().webhooks.constructEvent(
       body,
       signature,
       process.env.STRIPE_WEBHOOK_SECRET!
