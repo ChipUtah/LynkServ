@@ -89,6 +89,22 @@ export async function signupProvider(payload: SignupPayload): Promise<SignupResu
     return { ok: false, error: authError.message };
   }
 
+  // ── Link if admin already created a record with this email ──
+  const { data: adminCreated } = await supabase
+    .from("providers")
+    .select("id")
+    .eq("email", payload.email.trim().toLowerCase())
+    .is("user_id", null)
+    .maybeSingle();
+
+  if (adminCreated) {
+    await supabase
+      .from("providers")
+      .update({ user_id: authData.user.id, trial_start: new Date().toISOString() })
+      .eq("id", adminCreated.id);
+    return { ok: true, foundingMember: false };
+  }
+
   // ── Generate unique slug ───────────────────────────────────
   const baseSlug = makeSlug(payload.businessName, payload.city);
   const { data: slugMatch } = await supabase

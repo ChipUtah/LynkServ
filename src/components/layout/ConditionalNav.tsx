@@ -5,6 +5,6 @@ import { Navbar } from "./Navbar";
 
 export function ConditionalNav() {
   const pathname = usePathname();
-  if (pathname.startsWith("/provider/dashboard")) return null;
+  if (pathname.startsWith("/provider/dashboard") || pathname.startsWith("/admin")) return null;
   return <Navbar />;
 }
