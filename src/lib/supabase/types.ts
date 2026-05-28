@@ -32,6 +32,7 @@ export interface Provider {
   // Stripe
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
+  next_billing_date: string | null; // ISO timestamptz
 
   // FTCO
   ftco_active: boolean;

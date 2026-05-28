@@ -1,20 +1,13 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { trialDaysRemaining } from "@/lib/stripe";
+import { BillingActions } from "@/components/dashboard/BillingActions";
 import type { Provider } from "@/lib/supabase/types";
 
-function trialDaysLeft(trialStart: string | null): number | null {
-  if (!trialStart) return null;
-  const end = new Date(trialStart).getTime() + 30 * 24 * 60 * 60 * 1000;
-  const left = Math.ceil((end - Date.now()) / (1000 * 60 * 60 * 24));
-  return left > 0 ? left : 0;
+interface PageProps {
+  searchParams: Promise<{ success?: string; canceled?: string }>;
 }
-
-const PLAN_PRICES = {
-  Basic:    { monthly: 29, annual: 289 },
-  Standard: { monthly: 59, annual: 589 },
-  Featured: { monthly: 99, annual: 989 },
-} as const;
 
 const PLAN_FEATURES: Record<string, string[]> = {
   Basic: [
@@ -24,8 +17,7 @@ const PLAN_FEATURES: Record<string, string[]> = {
   ],
   Standard: [
     "Everything in Basic",
-    "Profile photo",
-    "Up to 3 customer testimonials",
+    "Profile photo + up to 3 testimonials",
     "First-Time Customer Offer badge",
     "Standard badge in search results",
   ],
@@ -37,7 +29,15 @@ const PLAN_FEATURES: Record<string, string[]> = {
   ],
 };
 
-export default async function BillingPage() {
+const PLAN_PRICES: Record<string, { monthly: number; annual: number }> = {
+  Basic:    { monthly: 29, annual: 289 },
+  Standard: { monthly: 59, annual: 589 },
+  Featured: { monthly: 99, annual: 989 },
+};
+
+export default async function BillingPage({ searchParams }: PageProps) {
+  const { success, canceled } = await searchParams;
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/provider/login");
@@ -49,13 +49,17 @@ export default async function BillingPage() {
     .maybeSingle();
   if (!data) redirect("/provider/signup");
 
-  const p = data as Provider;
-  const daysLeft = trialDaysLeft(p.trial_start);
-  const prices = PLAN_PRICES[p.tier as keyof typeof PLAN_PRICES];
-  const features = PLAN_FEATURES[p.tier] ?? [];
+  const p         = data as Provider;
+  const daysLeft  = trialDaysRemaining(p.trial_start);
+  const prices    = PLAN_PRICES[p.tier];
+  const features  = PLAN_FEATURES[p.tier] ?? [];
 
   const trialEnd = p.trial_start
     ? new Date(new Date(p.trial_start).getTime() + 30 * 24 * 60 * 60 * 1000)
+    : null;
+
+  const nextBillingDate = p.next_billing_date
+    ? new Date(p.next_billing_date)
     : null;
 
   return (
@@ -63,11 +67,36 @@ export default async function BillingPage() {
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-[#111827]">Billing &amp; Plan</h1>
         <p className="text-sm text-gray-500 mt-1">
-          Manage your subscription and plan.
+          Manage your subscription and payment details.
         </p>
       </div>
 
-      {/* Current plan */}
+      {/* ── Post-checkout feedback ──────────────────── */}
+      {success === "true" && (
+        <div className="bg-green-50 border border-green-200 rounded-2xl p-5 mb-6 flex items-start gap-3">
+          <svg className="w-5 h-5 text-green-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+          </svg>
+          <div>
+            <p className="font-semibold text-green-800 mb-0.5">Subscription activated!</p>
+            <p className="text-sm text-green-700">
+              You&apos;re all set. Your listing will remain active as long as your
+              subscription is current.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {canceled === "true" && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 mb-6">
+          <p className="text-sm text-amber-800">
+            Checkout canceled — no charge was made. You can activate your
+            subscription whenever you&apos;re ready.
+          </p>
+        </div>
+      )}
+
+      {/* ── Current plan ───────────────────────────── */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-5">
         <div className="flex items-start justify-between gap-4 mb-4">
           <div>
@@ -78,7 +107,7 @@ export default async function BillingPage() {
           </div>
           {prices && (
             <div className="text-right">
-              <p className="text-2xl font-extrabold text-[#111827]">
+              <p className="text-xl font-extrabold text-[#111827]">
                 ${prices.monthly}
                 <span className="text-sm font-normal text-gray-400">/mo</span>
               </p>
@@ -100,57 +129,86 @@ export default async function BillingPage() {
 
         {p.founding_member && (
           <p className="text-xs text-amber-700 bg-amber-50 px-3 py-2 rounded-lg font-medium">
-            🎯 Founding Member: 50% off applied for first 3 months after trial
+            🎯 Founding Member — 50% off your first 3 months after trial
           </p>
         )}
       </div>
 
-      {/* Trial status */}
-      {daysLeft !== null && (
-        <div className={`rounded-2xl border p-5 mb-5 ${
-          daysLeft > 5 ? "bg-green-50 border-green-200" : "bg-amber-50 border-amber-200"
-        }`}>
-          <p className="font-semibold text-[#111827] mb-0.5">
-            {daysLeft > 0
-              ? `Free trial — ${daysLeft} day${daysLeft === 1 ? "" : "s"} remaining`
-              : "Free trial ended"}
+      {/* ── Subscription status ─────────────────────── */}
+      {p.billing_active ? (
+        <div className="bg-green-50 border border-green-200 rounded-2xl p-5 mb-5">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="w-2 h-2 rounded-full bg-green-500" />
+            <p className="font-semibold text-[#111827] text-sm">Subscription active</p>
+          </div>
+          {nextBillingDate && (
+            <p className="text-sm text-gray-600 ml-4">
+              Next billing date:{" "}
+              <span className="font-medium">
+                {nextBillingDate.toLocaleDateString("en-US", {
+                  month: "long", day: "numeric", year: "numeric",
+                })}
+              </span>
+            </p>
+          )}
+        </div>
+      ) : daysLeft > 0 ? (
+        <div className={`rounded-2xl border p-5 mb-5 ${daysLeft > 7 ? "bg-blue-50 border-blue-100" : "bg-amber-50 border-amber-200"}`}>
+          <p className="font-semibold text-[#111827] text-sm mb-0.5">
+            Free trial — {daysLeft} day{daysLeft === 1 ? "" : "s"} remaining
           </p>
           <p className="text-sm text-gray-600">
-            {trialEnd && daysLeft > 0
-              ? `Trial ends on ${trialEnd.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}. No credit card required until then.`
-              : "Add a payment method to keep your listing active."}
+            {trialEnd && (
+              <>
+                Trial ends{" "}
+                {trialEnd.toLocaleDateString("en-US", {
+                  month: "long", day: "numeric", year: "numeric",
+                })}
+                . Activate now to keep your listing running without interruption.
+              </>
+            )}
+          </p>
+        </div>
+      ) : (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-5 mb-5">
+          <p className="font-semibold text-red-700 text-sm mb-0.5">
+            Trial ended — listing paused
+          </p>
+          <p className="text-sm text-gray-600">
+            Activate a subscription to make your listing visible again.
           </p>
         </div>
       )}
 
-      {/* Stripe portal placeholder */}
+      {/* ── Billing actions ─────────────────────────── */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-5">
-        <p className="font-semibold text-[#111827] mb-1">Payment &amp; Subscription</p>
-        <p className="text-sm text-gray-500 mb-4">
-          Billing management launches when your trial ends. You&apos;ll receive an email
-          with a secure link to add your payment method.
+        <p className="font-semibold text-[#111827] mb-5">
+          {p.billing_active ? "Subscription management" : "Activate your subscription"}
         </p>
-        <span className="inline-block text-xs font-semibold text-gray-400 bg-gray-100 px-3 py-1.5 rounded-lg">
-          Coming soon
-        </span>
+        <BillingActions
+          currentTier={p.tier}
+          isActive={p.billing_active}
+          foundingMember={p.founding_member}
+          hasStripeCustomer={!!p.stripe_customer_id}
+        />
       </div>
 
-      {/* Upgrade CTA */}
-      {p.tier !== "Featured" && (
-        <div className="bg-[#111827] rounded-2xl p-6 text-white">
-          <p className="font-bold mb-1">
-            {p.tier === "Basic" ? "Upgrade for more visibility" : "Upgrade to Featured"}
+      {/* ── Upgrade nudge (non-Featured only) ──────── */}
+      {p.tier !== "Featured" && !p.billing_active && (
+        <div className="bg-[#111827] rounded-2xl p-5 text-white">
+          <p className="font-bold mb-1 text-sm">
+            {p.tier === "Basic" ? "Want more visibility?" : "Get listed first in every search"}
           </p>
-          <p className="text-sm text-gray-400 mb-4">
+          <p className="text-xs text-gray-400 mb-3">
             {p.tier === "Basic"
-              ? "Add a profile photo, testimonials, and a First-Time Offer badge with Standard."
-              : "Get listed first in all search results and unlock analytics with Featured."}
+              ? "Upgrade to Standard for a profile photo, testimonials, and a First-Time Offer badge."
+              : "Upgrade to Featured to appear first in all search results and unlock analytics."}
           </p>
           <Link
             href="/pricing"
-            className="inline-block bg-[#1B4FD8] text-white text-sm font-semibold px-6 py-2.5 rounded-xl hover:bg-blue-600 transition-colors"
+            className="text-xs font-semibold text-[#1B4FD8] hover:underline"
           >
-            View pricing →
+            Compare plans →
           </Link>
         </div>
       )}
