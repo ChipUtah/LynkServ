@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+:root {
+  --blue-primary: #1B4FD8;
+  --gray-light: #F8F9FA;
+  --white: #FFFFFF;
+  --near-black: #111827;
+  --amber: #F59E0B;
+}
+
+@theme inline {
+  --color-background: #F8F9FA;
+  --color-foreground: #111827;
+  --color-blue-primary: #1B4FD8;
+  --color-gray-light: #F8F9FA;
+  --color-near-black: #111827;
+  --color-amber: #F59E0B;
+  --font-sans: var(--font-jakarta);
+}
+
+body {
+  background: var(--gray-light);
+  color: var(--near-black);
+}
