@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 
@@ -20,7 +19,14 @@ export default async function AdminLayout({
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user || !isAdmin(user.email)) redirect("/admin/login");
+  // Middleware already redirects unauthenticated/non-admin users to /admin/login.
+  // The layout must NOT redirect — it also runs on /admin/login itself, and
+  // redirecting from there creates an infinite loop.
+  // Instead: render bare children (the login form) when not authenticated,
+  // and the full dashboard shell when authenticated as admin.
+  if (!user || !isAdmin(user.email)) {
+    return <>{children}</>;
+  }
 
   return (
     <div className="min-h-screen bg-[#F8F9FA]">
