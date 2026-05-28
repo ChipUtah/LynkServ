@@ -118,12 +118,8 @@ CREATE TRIGGER providers_updated_at
 CREATE INDEX idx_providers_search
   ON providers (city, category, approval_status, tier);
 
--- Tier ordering lookup (Featured → Standard → Basic)
-CREATE INDEX idx_providers_tier
-  ON providers (
-    CASE tier WHEN 'Featured' THEN 1 WHEN 'Standard' THEN 2 ELSE 3 END,
-    sort_order
-  );
+-- Tier + manual sort order (query layer applies Featured→Standard→Basic ordering)
+CREATE INDEX idx_providers_tier ON providers (tier, sort_order);
 
 -- Admin: find by email
 CREATE INDEX idx_providers_email ON providers (email);
