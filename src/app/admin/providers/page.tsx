@@ -90,17 +90,20 @@ export default async function AdminProvidersPage({ searchParams }: PageProps) {
           <table className="w-full text-sm">
             <thead className="bg-[#F8F9FA] border-b border-gray-100">
               <tr>
-                {["Business", "Tier", "City · Category", "Status", "Billing", "FM", "Joined", "Actions"].map((h) => (
-                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                    {h}
-                  </th>
-                ))}
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Business</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:table-cell">Tier</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:table-cell">City · Category</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden lg:table-cell">Billing</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden lg:table-cell">FM</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">Joined</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
               {providers.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-10 text-center text-gray-400 text-sm">
+                  <td colSpan={99} className="px-4 py-10 text-center text-gray-400 text-sm">
                     No providers found.
                   </td>
                 </tr>
@@ -120,15 +123,15 @@ export default async function AdminProvidersPage({ searchParams }: PageProps) {
                       </span>
                     </td>
 
-                    {/* Tier */}
-                    <td className="px-4 py-3 whitespace-nowrap">
+                    {/* Tier — hidden on mobile */}
+                    <td className="px-4 py-3 whitespace-nowrap hidden sm:table-cell">
                       <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${TIER_BADGE[p.tier]}`}>
                         {p.tier}
                       </span>
                     </td>
 
-                    {/* City · Category */}
-                    <td className="px-4 py-3">
+                    {/* City · Category — hidden on mobile */}
+                    <td className="px-4 py-3 hidden sm:table-cell">
                       <p className="whitespace-nowrap text-xs text-gray-700">{p.city}</p>
                       <p className="text-xs text-gray-400">{p.category}</p>
                     </td>
@@ -140,20 +143,20 @@ export default async function AdminProvidersPage({ searchParams }: PageProps) {
                       </span>
                     </td>
 
-                    {/* Billing */}
-                    <td className="px-4 py-3 whitespace-nowrap">
+                    {/* Billing — hidden on mobile/tablet */}
+                    <td className="px-4 py-3 whitespace-nowrap hidden lg:table-cell">
                       <span className={`text-xs font-medium ${p.billing_active ? "text-green-600" : "text-gray-400"}`}>
                         {p.billing_active ? "Active" : "—"}
                       </span>
                     </td>
 
-                    {/* Founding member */}
-                    <td className="px-4 py-3 text-center">
+                    {/* Founding member — hidden on mobile/tablet */}
+                    <td className="px-4 py-3 text-center hidden lg:table-cell">
                       {p.founding_member && <span title="Founding Member">🎯</span>}
                     </td>
 
-                    {/* Joined */}
-                    <td className="px-4 py-3 whitespace-nowrap text-xs text-gray-400">
+                    {/* Joined — hidden on mobile */}
+                    <td className="px-4 py-3 whitespace-nowrap text-xs text-gray-400 hidden md:table-cell">
                       {new Date(p.created_at).toLocaleDateString("en-US", {
                         month: "short", day: "numeric", year: "numeric",
                       })}
@@ -166,7 +169,7 @@ export default async function AdminProvidersPage({ searchParams }: PageProps) {
                           <form action={approveProvider.bind(null, p.id)}>
                             <button
                               type="submit"
-                              className="text-xs font-semibold text-green-700 hover:text-green-900 transition-colors"
+                              className="text-xs font-semibold text-green-700 hover:text-green-900 transition-colors px-2 py-1.5 min-h-[32px]"
                             >
                               Approve
                             </button>
@@ -176,7 +179,7 @@ export default async function AdminProvidersPage({ searchParams }: PageProps) {
                           <form action={suspendProvider.bind(null, p.id)}>
                             <button
                               type="submit"
-                              className="text-xs font-semibold text-red-500 hover:text-red-700 transition-colors"
+                              className="text-xs font-semibold text-red-500 hover:text-red-700 transition-colors px-2 py-1.5 min-h-[32px]"
                             >
                               Suspend
                             </button>

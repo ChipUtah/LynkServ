@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { ConditionalNav } from "@/components/layout/ConditionalNav";
@@ -9,6 +9,12 @@ const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   display: "swap",
 });
+
+export const viewport: Viewport = {
+  width:        "device-width",
+  initialScale: 1,
+  viewportFit:  "cover", // enables env(safe-area-inset-*) on notched iPhones
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(

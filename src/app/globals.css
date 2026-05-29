@@ -21,4 +21,35 @@
 body {
   background: var(--gray-light);
   color: var(--near-black);
+  /* Prevent text size inflation on orientation change */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* ─── Touch devices ──────────────────────────────────────────
+   Prevent iOS Safari from zooming in when focusing an input
+   whose font-size is less than 16px.                         */
+@media (hover: none) and (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* Eliminate the 300 ms tap delay on iOS and Android */
+a,
+button,
+[role="button"],
+input[type="submit"],
+input[type="button"] {
+  touch-action: manipulation;
+}
+
+/* Safe-area utility — used by fixed bottom navbars */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.mb-safe {
+  margin-bottom: env(safe-area-inset-bottom, 0px);
 }

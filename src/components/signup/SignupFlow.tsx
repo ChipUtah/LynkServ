@@ -63,7 +63,7 @@ export function SignupFlow({ initialPlan, initialBilling }: Props) {
   // Success screen
   if (success) {
     return (
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-8 py-10 max-w-xl mx-auto">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-8 sm:px-8 sm:py-10 max-w-xl mx-auto">
         <SuccessScreen
           businessName={business.businessName}
           email={account.email}
@@ -110,7 +110,7 @@ export function SignupFlow({ initialPlan, initialBilling }: Props) {
 
               {i < STEP_LABELS.length - 1 && (
                 <div
-                  className={`h-0.5 w-10 mx-1 mb-5 transition-colors ${
+                  className={`h-0.5 w-8 sm:w-10 mx-1 mb-5 transition-colors ${
                     step > n ? "bg-[#1B4FD8]" : "bg-gray-100"
                   }`}
                 />
@@ -121,7 +121,7 @@ export function SignupFlow({ initialPlan, initialBilling }: Props) {
       </div>
 
       {/* ── Step content ───────────────────────────────── */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-7 py-8">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-6 sm:px-7 sm:py-8">
         {step === 1 && (
           <StepPlan
             plan={plan}

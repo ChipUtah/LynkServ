@@ -449,7 +449,7 @@ export default async function ProviderProfilePage({ params }: PageProps) {
             <div className="space-y-5">
 
               {/* Contact card */}
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sticky top-6">
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 lg:sticky lg:top-6">
                 <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-4">
                   Contact
                 </h2>

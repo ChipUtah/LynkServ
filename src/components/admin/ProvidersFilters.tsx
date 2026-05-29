@@ -34,23 +34,43 @@ export function ProvidersFilters({ q, status, tier, city, category }: Props) {
   return (
     <form
       onSubmit={(e) => { e.preventDefault(); router.push(buildUrl({ q: localQ })); }}
-      className="flex flex-wrap gap-2 items-center"
+      className="flex flex-col gap-2"
     >
-      {/* Search */}
-      <div className="relative flex-1 min-w-48">
-        <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
-          fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-        <input
-          type="text"
-          value={localQ}
-          onChange={(e) => setLocalQ(e.target.value)}
-          placeholder="Search name, email…"
-          className="w-full pl-9 pr-4 py-2 rounded-lg border border-gray-200 text-sm outline-none focus:border-[#1B4FD8] transition-colors bg-white"
-        />
+      {/* Row 1: search + submit */}
+      <div className="flex gap-2">
+        <div className="relative flex-1 min-w-0">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="text"
+            value={localQ}
+            onChange={(e) => setLocalQ(e.target.value)}
+            placeholder="Search name, email…"
+            className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-gray-200 text-sm outline-none focus:border-[#1B4FD8] transition-colors bg-white"
+          />
+        </div>
+        <button
+          type="submit"
+          className="bg-[#1B4FD8] text-white text-sm font-semibold px-4 py-2.5 rounded-lg hover:bg-blue-700 transition-colors whitespace-nowrap"
+        >
+          Search
+        </button>
+        {hasFilters && (
+          <button
+            type="button"
+            onClick={() => { setLocalQ(""); router.push("/admin/providers"); }}
+            className="text-sm text-gray-400 hover:text-[#111827] transition-colors px-2 whitespace-nowrap"
+          >
+            Clear
+          </button>
+        )}
       </div>
+
+      {/* Row 2: filter dropdowns in 2×2 grid on mobile, row on desktop */}
+      <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
 
       {/* Status */}
       <select
@@ -68,7 +88,7 @@ export function ProvidersFilters({ q, status, tier, city, category }: Props) {
       <select
         value={tier ?? ""}
         onChange={(e) => router.push(buildUrl({ tier: e.target.value }))}
-        className="px-3 py-2 rounded-lg border border-gray-200 text-sm bg-white outline-none focus:border-[#1B4FD8] cursor-pointer"
+        className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm bg-white outline-none focus:border-[#1B4FD8] cursor-pointer"
       >
         <option value="">All tiers</option>
         {["Basic", "Standard", "Featured"].map((t) => (
@@ -80,7 +100,7 @@ export function ProvidersFilters({ q, status, tier, city, category }: Props) {
       <select
         value={city ?? ""}
         onChange={(e) => router.push(buildUrl({ city: e.target.value }))}
-        className="px-3 py-2 rounded-lg border border-gray-200 text-sm bg-white outline-none focus:border-[#1B4FD8] cursor-pointer"
+        className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm bg-white outline-none focus:border-[#1B4FD8] cursor-pointer"
       >
         <option value="">All cities</option>
         {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
@@ -90,28 +110,12 @@ export function ProvidersFilters({ q, status, tier, city, category }: Props) {
       <select
         value={category ?? ""}
         onChange={(e) => router.push(buildUrl({ category: e.target.value }))}
-        className="px-3 py-2 rounded-lg border border-gray-200 text-sm bg-white outline-none focus:border-[#1B4FD8] cursor-pointer"
+        className="w-full px-3 py-2.5 rounded-lg border border-gray-200 text-sm bg-white outline-none focus:border-[#1B4FD8] cursor-pointer"
       >
         <option value="">All categories</option>
         {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
       </select>
-
-      <button
-        type="submit"
-        className="bg-[#1B4FD8] text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors whitespace-nowrap"
-      >
-        Search
-      </button>
-
-      {hasFilters && (
-        <button
-          type="button"
-          onClick={() => { setLocalQ(""); router.push("/admin/providers"); }}
-          className="text-sm text-gray-400 hover:text-[#111827] transition-colors"
-        >
-          Clear
-        </button>
-      )}
+      </div>{/* end grid */}
     </form>
   );
 }

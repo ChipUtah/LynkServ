@@ -22,6 +22,7 @@ const NAV = [
   {
     href: "/provider/dashboard",
     label: "Overview",
+    shortLabel: "Home",
     icon: (
       <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -32,6 +33,7 @@ const NAV = [
   {
     href: "/provider/dashboard/profile",
     label: "Edit Profile",
+    shortLabel: "Profile",
     icon: (
       <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -42,6 +44,7 @@ const NAV = [
   {
     href: "/provider/dashboard/ftco",
     label: "First-Time Offer",
+    shortLabel: "Offers",
     icon: (
       <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -52,6 +55,7 @@ const NAV = [
   {
     href: "/provider/dashboard/billing",
     label: "Billing & Plan",
+    shortLabel: "Billing",
     icon: (
       <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -144,7 +148,8 @@ export function DashboardSidebar({ provider }: { provider: SidebarProvider }) {
       </aside>
 
       {/* ── Mobile tab bar ────────────────────────────── */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#111827] border-t border-white/10 flex">
+      {/* pb-safe adds env(safe-area-inset-bottom) for iPhone home bar */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#111827] border-t border-white/10 flex pb-safe">
         {NAV.map((item) => {
           const active =
             item.href === "/provider/dashboard"
@@ -154,25 +159,25 @@ export function DashboardSidebar({ provider }: { provider: SidebarProvider }) {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex-1 flex flex-col items-center gap-1 py-2.5 text-xs font-medium transition-colors ${
+              className={`flex-1 flex flex-col items-center gap-1 pt-2.5 pb-2 min-h-[52px] text-xs font-medium transition-colors ${
                 active ? "text-[#1B4FD8]" : "text-gray-500"
               }`}
             >
               {item.icon}
-              <span className="text-[10px]">{item.label.split(" ")[0]}</span>
+              <span className="text-[10px] leading-none">{item.shortLabel}</span>
             </Link>
           );
         })}
         <form action={signOut} className="flex-1">
           <button
             type="submit"
-            className="w-full h-full flex flex-col items-center gap-1 py-2.5 text-xs font-medium text-gray-500"
+            className="w-full flex flex-col items-center gap-1 pt-2.5 pb-2 min-h-[52px] text-xs font-medium text-gray-500"
           >
             <svg className="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                 d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
-            <span className="text-[10px]">Sign Out</span>
+            <span className="text-[10px] leading-none">Sign Out</span>
           </button>
         </form>
       </nav>

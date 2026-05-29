@@ -26,8 +26,8 @@ export default async function DashboardLayout({
     <div className="min-h-screen bg-[#F8F9FA]">
       <DashboardSidebar provider={provider} />
 
-      {/* Content — offset by sidebar width on desktop, by mobile tab bar at bottom */}
-      <div className="lg:pl-60 pb-20 lg:pb-0">
+      {/* Content — offset by sidebar on desktop; extra pb on mobile for tab bar + safe area */}
+      <div className="lg:pl-60 pb-24 lg:pb-0">
         {children}
       </div>
     </div>
