@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import type { Tier, ApprovalStatus } from "@/lib/supabase/types";
+import { sendApprovalEmail } from "@/lib/brevo";
+import type { Tier, ApprovalStatus, Provider } from "@/lib/supabase/types";
 
 // ─── Auth guard ───────────────────────────────────────────────
 
@@ -47,6 +48,25 @@ export async function approveProvider(id: string): Promise<void> {
   await sb.from("providers").update({ approval_status: "Approved" }).eq("id", id);
   revalidatePath("/admin/providers");
   revalidatePath(`/admin/providers/${id}`);
+
+  // Send approval notification — non-blocking
+  sb.from("providers").select("*").eq("id", id).maybeSingle().then(({ data }) => {
+    if (!data) return;
+    const p = data as Provider;
+    sendApprovalEmail({
+      email:         p.email,
+      contactName:   p.contact_name,
+      businessName:  p.business_name,
+      category:      p.category,
+      city:          p.city,
+      slug:          p.slug,
+      id:            p.id,
+      foundingMember: p.founding_member,
+      trial_start:   p.trial_start,
+    }).catch((err) =>
+      console.error("[approveProvider] Approval email error:", err)
+    );
+  });
 }
 
 export async function suspendProvider(id: string): Promise<void> {

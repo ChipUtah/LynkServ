@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import Stripe from "stripe";
 import { getStripe, getTierFromPriceId } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sendPaymentFailedEmail } from "@/lib/brevo";
 
 export const dynamic = "force-dynamic";
 
@@ -109,12 +110,31 @@ export async function POST(request: NextRequest) {
 
       // ── invoice.payment_failed ───────────────────────────────
       case "invoice.payment_failed": {
-        const invoice = event.data.object as Stripe.Invoice;
+        const invoice    = event.data.object as Stripe.Invoice;
+        const customerId = invoice.customer as string;
 
-        await sb.from("providers").update({ billing_active: false })
-          .eq("stripe_customer_id", invoice.customer as string);
+        // Fetch provider before updating so we have email details
+        const { data: failedProvider } = await sb
+          .from("providers")
+          .select("email, contact_name, business_name")
+          .eq("stripe_customer_id", customerId)
+          .maybeSingle();
 
-        console.log(`[Stripe webhook] invoice.payment_failed — customer ${invoice.customer}`);
+        await sb.from("providers")
+          .update({ billing_active: false })
+          .eq("stripe_customer_id", customerId);
+
+        if (failedProvider) {
+          sendPaymentFailedEmail({
+            email:        failedProvider.email,
+            contactName:  failedProvider.contact_name,
+            businessName: failedProvider.business_name,
+          }).catch((err) =>
+            console.error("[webhook] Payment failed email error:", err)
+          );
+        }
+
+        console.log(`[Stripe webhook] invoice.payment_failed — customer ${customerId}`);
         break;
       }
 

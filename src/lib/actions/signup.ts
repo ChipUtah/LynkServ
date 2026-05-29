@@ -1,6 +1,7 @@
 "use server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sendWelcomeEmail } from "@/lib/brevo";
 
 export type SignupPayload = {
   plan: "basic" | "standard" | "featured";
@@ -146,6 +147,15 @@ export async function signupProvider(payload: SignupPayload): Promise<SignupResu
     await supabase.auth.admin.deleteUser(authData.user.id);
     return { ok: false, error: "Failed to create your listing. Please try again." };
   }
+
+  // Send welcome email — non-blocking, failure must not affect signup
+  sendWelcomeEmail({
+    email:         payload.email.trim().toLowerCase(),
+    contactName:   payload.contactName.trim() || null,
+    businessName:  payload.businessName.trim(),
+    foundingMember,
+    trialStart:    new Date().toISOString(),
+  }).catch((err) => console.error("[signup] Welcome email error:", err));
 
   return { ok: true, foundingMember };
 }
