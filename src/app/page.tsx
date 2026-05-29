@@ -1,7 +1,51 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { HeroSearch } from "@/components/home/HeroSearch";
 import { NewsletterSignup } from "@/components/home/NewsletterSignup";
 import { CATEGORY_DATA, HOW_IT_WORKS, WHY_LYNKSERV } from "@/lib/constants";
+
+export const metadata: Metadata = {
+  title: "LynkServ — Find Vetted Local Service Businesses in Utah",
+  description:
+    "Discover vetted local service businesses across Utah. Search plumbers, electricians, lawn care, and 12 service categories in Salt Lake City, Provo, Ogden, St. George, and 27 more Utah cities. Free for homeowners — no lead fees, no middlemen.",
+  alternates: { canonical: "https://lynkserv.com" },
+  openGraph: {
+    title:       "LynkServ — Find Vetted Local Service Businesses in Utah",
+    description: "Discover vetted local service businesses across Utah. Free for homeowners — no lead fees, no middlemen.",
+    url:         "https://lynkserv.com",
+  },
+};
+
+// ─── AEO FAQ data ─────────────────────────────────────────────
+// Written to directly answer questions AI assistants surface about
+// finding trusted local contractors in Utah.
+
+const HOME_FAQ = [
+  {
+    q: "What is LynkServ and how does it work?",
+    a: "LynkServ is Utah's local service directory. Homeowners search by service type and city, browse vetted business profiles with real Google ratings, and contact businesses directly — no forms, no middlemen. Every listed business is manually reviewed before going live.",
+  },
+  {
+    q: "Where can I find vetted plumbers, electricians, or contractors in Utah?",
+    a: "LynkServ lists verified service businesses across 30 Utah cities including Salt Lake City, Provo, Ogden, St. George, Draper, Sandy, West Jordan, South Jordan, Lehi, Murray, and more. Search by category and city to find licensed, insured businesses near you.",
+  },
+  {
+    q: "How is LynkServ different from Angi or HomeAdvisor?",
+    a: "Unlike Angi or HomeAdvisor, LynkServ does not charge per lead and never sells your contact information to multiple contractors. Businesses pay one flat monthly fee. You browse and contact them directly — no aggressive follow-up calls, no auction-style lead system.",
+  },
+  {
+    q: "Is LynkServ free for homeowners?",
+    a: "Yes. LynkServ is completely free for homeowners to use. Browse listings, read reviews, and contact businesses at no cost. No account or sign-up required.",
+  },
+  {
+    q: "What types of local services are listed on LynkServ?",
+    a: "LynkServ covers 12 service categories: Home Services, Outdoor Services, Trades, Medical, Legal, Pet Services, Automotive, Beauty, Energy, Wellness, General Repair, and Professional Services — across 30 Utah cities.",
+  },
+  {
+    q: "How do I know businesses listed on LynkServ are trustworthy?",
+    a: "Every business is manually reviewed before their listing goes live. We verify the business is real and operating in Utah, confirm it matches its category, and check licenses and insurance where provided. Verified businesses display Licensed and Insured badges. We also suspend listings based on homeowner reports.",
+  },
+] as const;
 
 // ─── Icons ───────────────────────────────────────────────────
 
@@ -49,8 +93,45 @@ const ICONS = { shield: ShieldIcon, badge: BadgeIcon, tag: TagIcon } as const;
 // ─── Page ─────────────────────────────────────────────────────
 
 export default function HomePage() {
+  const websiteSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "LynkServ",
+    url: "https://lynkserv.com",
+    description: "Utah's local service directory connecting homeowners with vetted local service businesses.",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: { "@type": "EntryPoint", urlTemplate: "https://lynkserv.com/search?q={search_term_string}" },
+      "query-input": "required name=search_term_string",
+    },
+  };
+
+  const orgSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "LynkServ",
+    url: "https://lynkserv.com",
+    description: "Utah's local service directory connecting homeowners with vetted local service businesses.",
+    areaServed: { "@type": "State", name: "Utah", containedInPlace: { "@type": "Country", name: "United States" } },
+    contactPoint: { "@type": "ContactPoint", contactType: "customer support", email: "hello@lynkserv.com" },
+  };
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: HOME_FAQ.map(({ q, a }) => ({
+      "@type": "Question",
+      name: q,
+      acceptedAnswer: { "@type": "Answer", text: a },
+    })),
+  };
+
   return (
-    <main>
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      <main>
       {/* ── Hero ─────────────────────────────────────────── */}
       <section className="bg-[#1B4FD8] px-6 py-20 md:py-32 text-center text-white">
         <div className="max-w-4xl mx-auto">
@@ -149,6 +230,26 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── FAQ (AEO) ────────────────────────────────────── */}
+      <section className="bg-white px-6 py-16 md:py-20 border-t border-gray-100">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-2xl md:text-3xl font-bold text-[#111827] text-center mb-2">
+            Common questions
+          </h2>
+          <p className="text-gray-500 text-sm text-center mb-12">
+            Everything Utah homeowners want to know about LynkServ
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {HOME_FAQ.map(({ q, a }) => (
+              <div key={q} className="bg-[#F8F9FA] rounded-2xl p-6">
+                <h3 className="font-bold text-[#111827] mb-2 text-sm leading-snug">{q}</h3>
+                <p className="text-sm text-gray-600 leading-relaxed">{a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── Provider CTA ─────────────────────────────────── */}
       <section className="bg-[#111827] px-6 py-16 md:py-20 text-center text-white">
         <div className="max-w-2xl mx-auto">
@@ -187,5 +288,6 @@ export default function HomePage() {
         </div>
       </section>
     </main>
+    </>
   );
 }

@@ -3,9 +3,15 @@ import Link from "next/link";
 import { PricingCards } from "@/components/pricing/PricingCards";
 
 export const metadata: Metadata = {
-  title: "Pricing — LynkServ",
+  title: "Pricing — List Your Utah Business on LynkServ",
   description:
-    "Simple, transparent pricing for Utah service businesses. 30-day free trial, no credit card required.",
+    "Flat-rate pricing for Utah service businesses. Basic $29/mo, Standard $59/mo, Featured $99/mo. 30-day free trial, no credit card required. No lead fees, no contracts, cancel anytime.",
+  alternates: { canonical: "https://lynkserv.com/pricing" },
+  openGraph: {
+    title:       "Pricing — List Your Utah Business on LynkServ",
+    description: "Flat-rate pricing starting at $29/mo. 30-day free trial, no credit card required.",
+    url:         "https://lynkserv.com/pricing",
+  },
 };
 
 const FAQ = [
@@ -40,8 +46,20 @@ const FAQ = [
 ];
 
 export default function PricingPage() {
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQ.map(({ q, a }) => ({
+      "@type": "Question",
+      name: q,
+      acceptedAnswer: { "@type": "Answer", text: a },
+    })),
+  };
+
   return (
-    <main>
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      <main>
       {/* ── Hero ─────────────────────────────────────────── */}
       <section className="bg-white px-6 pt-16 pb-10 text-center border-b border-gray-100">
         <div className="max-w-2xl mx-auto">
@@ -138,5 +156,6 @@ export default function PricingPage() {
         </div>
       </section>
     </main>
+    </>
   );
 }

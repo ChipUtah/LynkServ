@@ -2,9 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "About — LynkServ",
+  title: "About LynkServ — Utah's Local Service Directory",
   description:
-    "LynkServ is Utah's local service directory built for homeowners, not advertisers. No lead fees, no middlemen, real vetting.",
+    "LynkServ is Utah's trusted local service directory. No lead fees, no middlemen, flat-rate pricing. Every listed business is vetted. Built for Utah homeowners who want direct access to real local businesses.",
+  alternates: { canonical: "https://lynkserv.com/about" },
+  openGraph: {
+    title:       "About LynkServ — Utah's Local Service Directory",
+    description: "No lead fees, no middlemen. Utah's trusted directory for finding vetted local service businesses.",
+    url:         "https://lynkserv.com/about",
+  },
 };
 
 function DiffCard({

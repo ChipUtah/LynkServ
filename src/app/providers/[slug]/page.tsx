@@ -46,11 +46,27 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   const p = await fetchProvider(slug);
   if (!p) return { title: "Business Not Found — LynkServ" };
+
+  const canonicalUrl = `https://lynkserv.com/providers/${p.slug ?? p.id}`;
+  const title        = `${p.business_name} — ${p.category} in ${p.city}, UT`;
+  const description  = p.description
+    ? `${p.description.slice(0, 120)}... ${p.business_name} serves ${p.city}, Utah. Listed on LynkServ.`
+    : `${p.business_name} is a vetted ${p.category.toLowerCase()} business serving ${p.city}, Utah. View contact info, reviews, and more on LynkServ.`;
+
   return {
-    title: `${p.business_name} — ${p.category} in ${p.city}, UT | LynkServ`,
-    description:
-      p.description ??
-      `${p.business_name} is a ${p.category} business serving ${p.city}, Utah. Find contact info, reviews, and more on LynkServ.`,
+    title,
+    description,
+    alternates: { canonical: canonicalUrl },
+    openGraph: {
+      title,
+      description,
+      url:  canonicalUrl,
+      type: "profile",
+      ...(p.profile_photo?.startsWith("http") && {
+        images: [{ url: p.profile_photo, width: 800, height: 600, alt: p.business_name }],
+      }),
+    },
+    twitter: { card: "summary", title, description },
   };
 }
 
@@ -200,20 +216,39 @@ export default async function ProviderProfilePage({ params }: PageProps) {
     p.linkedin_url  && { href: p.linkedin_url,  label: "LinkedIn",  icon: "in", bg: "bg-blue-700"  },
   ].filter(Boolean) as { href: string; label: string; icon: string; bg: string }[];
 
-  // JSON-LD structured data
+  // JSON-LD structured data — enhanced LocalBusiness schema
+  const profileUrl = `https://lynkserv.com/providers/${p.slug ?? p.id}`;
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
+    "@id": profileUrl,
     name: p.business_name,
     ...(p.description && { description: p.description }),
     ...(p.phone       && { telephone: p.phone }),
     ...(p.website     && { url: p.website }),
+    sameAs:   profileUrl,
+    image:    p.profile_photo?.startsWith("http") ? p.profile_photo : undefined,
+    priceRange: p.tier === "Featured" ? "$$$" : p.tier === "Standard" ? "$$" : "$",
     address: {
       "@type": "PostalAddress",
       addressLocality: p.city,
       addressRegion: "UT",
       addressCountry: "US",
     },
+    areaServed: {
+      "@type": "City",
+      name: p.city,
+      containedInPlace: { "@type": "State", name: "Utah" },
+    },
+    ...(p.license_verified  && { hasCredential: "Licensed" }),
+    ...(p.insurance_verified && { hasCredential: "Insured" }),
+    ...(p.ftco_active && p.ftco_description && {
+      hasOfferCatalog: {
+        "@type": "OfferCatalog",
+        name: "First-Time Customer Offer",
+        description: p.ftco_description,
+      },
+    }),
     ...(p.google_rating != null && {
       aggregateRating: {
         "@type": "AggregateRating",

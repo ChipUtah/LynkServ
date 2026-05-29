@@ -3,9 +3,15 @@ import Link from "next/link";
 import { ContactForm } from "./ContactForm";
 
 export const metadata: Metadata = {
-  title: "Contact — LynkServ",
+  title: "Contact LynkServ — Get in Touch",
   description:
-    "Get in touch with the LynkServ team. Questions about listings, billing, or reporting a concern — we respond within one business day.",
+    "Questions about listings, provider billing, or reporting a concern? Contact the LynkServ team. We respond within one business day.",
+  alternates: { canonical: "https://lynkserv.com/contact" },
+  openGraph: {
+    title: "Contact LynkServ — Get in Touch",
+    description: "Reach the LynkServ team with questions about listings, billing, or to report a concern.",
+    url:  "https://lynkserv.com/contact",
+  },
 };
 
 const QUICK_ANSWERS = [

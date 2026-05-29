@@ -2,9 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "How We Vet Providers — LynkServ",
+  title: "How We Vet Providers — LynkServ Utah",
   description:
-    "Every business on LynkServ is manually reviewed before listing. Here's exactly what we check, what we verify, and what vetting means.",
+    "Every business on LynkServ is manually reviewed before listing. We verify licenses, insurance, and Utah operation. Learn exactly what our vetting process includes — and what it honestly doesn't guarantee.",
+  alternates: { canonical: "https://lynkserv.com/how-we-vet" },
+  openGraph: {
+    title:       "How We Vet Providers — LynkServ Utah",
+    description: "Every business manually reviewed before listing. Licenses checked, Utah operation verified. Honest about what vetting means.",
+    url:         "https://lynkserv.com/how-we-vet",
+  },
 };
 
 const PROCESS_STEPS = [

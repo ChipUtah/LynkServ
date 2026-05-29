@@ -2,9 +2,15 @@ import type { Metadata } from "next";
 import { SignupFlow } from "@/components/signup/SignupFlow";
 
 export const metadata: Metadata = {
-  title: "List Your Business — LynkServ",
+  title: "List Your Utah Business Free — LynkServ",
   description:
-    "Join LynkServ and get found by Utah homeowners. 30-day free trial, no credit card required.",
+    "List your Utah service business on LynkServ. 30-day free trial, no credit card required. Flat monthly fee starting at $29/mo. Get found by Utah homeowners directly — no lead fees.",
+  alternates: { canonical: "https://lynkserv.com/provider/signup" },
+  openGraph: {
+    title:       "List Your Utah Business Free — LynkServ",
+    description: "30-day free trial. Get found by Utah homeowners. No lead fees, flat monthly pricing.",
+    url:         "https://lynkserv.com/provider/signup",
+  },
 };
 
 interface PageProps {

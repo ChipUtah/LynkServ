@@ -15,11 +15,24 @@ interface PageProps {
 
 export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
   const { q, city, category } = await searchParams;
-  const parts = [q, category, city ? `${city}, UT` : null].filter(Boolean);
-  const title = parts.length > 0
-    ? `${parts.join(" · ")} — LynkServ`
-    : "Find Local Services in Utah — LynkServ";
-  return { title };
+
+  const titleParts = [q, category, city ? `${city}, UT` : null].filter(Boolean);
+  const title = titleParts.length > 0
+    ? `${titleParts.join(" · ")} — LynkServ`
+    : "Find Vetted Local Services in Utah — LynkServ";
+
+  const desc = (() => {
+    if (category && city) return `Find vetted ${category.toLowerCase()} businesses in ${city}, Utah. Browse licensed and insured local businesses on LynkServ.`;
+    if (category)         return `Find vetted ${category.toLowerCase()} businesses across Utah. Browse licensed and insured local businesses on LynkServ.`;
+    if (city)             return `Find vetted local service businesses in ${city}, Utah. Plumbers, electricians, lawn care, and more on LynkServ.`;
+    return "Search vetted local service businesses across 30 Utah cities. Find plumbers, electricians, lawn care, contractors, and more on LynkServ.";
+  })();
+
+  return {
+    title,
+    description: desc,
+    robots: { index: !q, follow: true }, // don't index keyword search results
+  };
 }
 
 async function fetchProviders(q?: string, city?: string, category?: string): Promise<Provider[]> {
