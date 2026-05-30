@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { changeAdminPassword } from "@/lib/actions/admin";
 
 const inputCls =
@@ -11,8 +13,9 @@ export default function ChangePasswordPage() {
   const [next,     setNext]     = useState("");
   const [confirm,  setConfirm]  = useState("");
   const [saving,   setSaving]   = useState(false);
-  const [status,   setStatus]   = useState<"idle" | "ok" | "error">("idle");
+  const [status,   setStatus]   = useState<"idle" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -34,10 +37,7 @@ export default function ChangePasswordPage() {
     setSaving(false);
 
     if (result.ok) {
-      setStatus("ok");
-      setCurrent("");
-      setNext("");
-      setConfirm("");
+      router.push("/admin/providers");
     } else {
       setStatus("error");
       setErrorMsg(result.error);
@@ -95,34 +95,37 @@ export default function ChangePasswordPage() {
             />
           </div>
 
-          {status === "ok" && (
-            <p className="text-sm text-green-700 bg-green-50 px-4 py-2.5 rounded-xl">
-              ✓ Password updated successfully.
-            </p>
-          )}
           {status === "error" && (
             <p className="text-sm text-red-600 bg-red-50 px-4 py-2.5 rounded-xl">
               {errorMsg}
             </p>
           )}
 
-          <button
-            type="submit"
-            disabled={saving}
-            className="w-full bg-[#1B4FD8] text-white font-bold py-2.5 rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
-          >
-            {saving ? (
-              <>
-                <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
-                Updating…
-              </>
-            ) : (
-              "Update password"
-            )}
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex-1 bg-[#1B4FD8] text-white font-bold py-2.5 rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+            >
+              {saving ? (
+                <>
+                  <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Updating…
+                </>
+              ) : (
+                "Update password"
+              )}
+            </button>
+            <Link
+              href="/admin/providers"
+              className="text-sm font-medium text-gray-400 hover:text-[#111827] transition-colors whitespace-nowrap"
+            >
+              Cancel
+            </Link>
+          </div>
         </form>
       </div>
     </main>
