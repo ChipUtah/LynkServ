@@ -26,6 +26,9 @@ export function Navbar() {
           <Link href="/about" className="hover:text-[#1B4FD8] transition-colors">
             About
           </Link>
+          <Link href="/provider/login" className="hover:text-[#1B4FD8] transition-colors text-gray-500">
+            Provider Login
+          </Link>
         </nav>
 
         <div className="flex items-center gap-3">
@@ -89,6 +92,13 @@ export function Navbar() {
             onClick={() => setOpen(false)}
           >
             About
+          </Link>
+          <Link
+            href="/provider/login"
+            className="py-3 text-sm font-medium text-gray-500 border-b border-gray-50 hover:text-[#1B4FD8] transition-colors"
+            onClick={() => setOpen(false)}
+          >
+            Provider Login
           </Link>
           <div className="pt-3">
             <Link
