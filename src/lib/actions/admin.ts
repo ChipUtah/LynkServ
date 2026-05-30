@@ -208,6 +208,33 @@ export async function createProviderAdminAndRedirect(
   if (result.ok) redirect(`/admin/providers/${result.id}`);
 }
 
+// ─── Change password ──────────────────────────────────────────
+
+export async function changeAdminPassword(data: {
+  currentPassword: string;
+  newPassword: string;
+}): Promise<ActionResult> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user?.email) return { ok: false, error: "Not authenticated." };
+
+  // Verify current password by re-authenticating
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email: user.email,
+    password: data.currentPassword,
+  });
+  if (signInError) return { ok: false, error: "Current password is incorrect." };
+
+  // Update password via admin client (avoids session side-effects)
+  const sb = createAdminClient();
+  const { error: updateError } = await sb.auth.admin.updateUserById(user.id, {
+    password: data.newPassword,
+  });
+  if (updateError) return { ok: false, error: updateError.message };
+
+  return { ok: true };
+}
+
 // ─── Waitlist actions ─────────────────────────────────────────
 
 export async function markWaitlistContacted(
