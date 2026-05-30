@@ -3,7 +3,7 @@
 // Run: node scripts/generate-favicon.mjs
 
 import { writeFileSync, mkdirSync } from "fs";
-import { deflateRawSync } from "zlib";
+import { deflateSync } from "zlib";
 
 // ── CRC32 ────────────────────────────────────────────────────
 const crcTable = new Uint32Array(256);
@@ -51,7 +51,7 @@ function makePng(w, h, px) {
   return Buffer.concat([
     sig,
     pngChunk("IHDR", ihdr),
-    pngChunk("IDAT", deflateRawSync(Buffer.from(rows), { level: 9 })),
+    pngChunk("IDAT", deflateSync(Buffer.from(rows), { level: 9 })),
     pngChunk("IEND", Buffer.alloc(0)),
   ]);
 }

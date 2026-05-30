@@ -74,15 +74,6 @@ export const metadata: Metadata = {
   },
 
   alternates: { canonical: "https://lynkserv.com" },
-
-  icons: {
-    icon:             [
-      { url: "/favicon.ico",  sizes: "any" },
-      { url: "/icon",         type: "image/png", sizes: "32x32" },
-    ],
-    apple:            { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
-    shortcut:         "/favicon.ico",
-  },
 };
 
 export default function RootLayout({
