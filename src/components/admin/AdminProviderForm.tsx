@@ -9,6 +9,7 @@ import {
 } from "@/lib/actions/admin";
 import { CITIES, CATEGORIES } from "@/lib/supabase/types";
 import type { Provider } from "@/lib/supabase/types";
+import { getSubcategoriesByCategory } from "@/lib/subcategories";
 
 interface Props {
   mode: "edit" | "create";
@@ -20,7 +21,7 @@ type F = AdminUpdateData & { password?: string };
 function blank(): F {
   return {
     business_name: "", contact_name: null, email: "", phone: null, website: null,
-    description: null, slug: null, city: "", category: "",
+    description: null, slug: null, city: "", category: "", subcategories: [],
     tier: "Basic", approval_status: "Approved",
     billing_active: false, founding_member: false, sort_order: 0,
     license_number: null, license_verified: false, insurance_verified: false,
@@ -46,6 +47,7 @@ function fromProvider(p: Provider): F {
     slug: p.slug,
     city: p.city,
     category: p.category,
+    subcategories: p.subcategories ?? [],
     tier: p.tier,
     approval_status: p.approval_status,
     billing_active: p.billing_active,
@@ -101,8 +103,23 @@ export function AdminProviderForm({ mode, provider }: Props) {
   const [status, setStatus] = useState<"idle" | "ok" | "error">("idle");
   const [errMsg, setErrMsg] = useState("");
 
+  const subcategoryOptions = form.category ? getSubcategoriesByCategory(form.category) : [];
+
   function set<K extends keyof F>(key: K, value: F[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function handleCategoryChange(newCategory: string) {
+    setForm((prev) => ({ ...prev, category: newCategory, subcategories: [] }));
+  }
+
+  function toggleSubcategory(slug: string) {
+    const current = form.subcategories as string[];
+    if (current.includes(slug)) {
+      set("subcategories", current.filter((s) => s !== slug) as never);
+    } else if (current.length < 3) {
+      set("subcategories", [...current, slug] as never);
+    }
   }
 
   function str(v: string | null): string { return v ?? ""; }
@@ -129,6 +146,7 @@ export function AdminProviderForm({ mode, provider }: Props) {
         description:    str(form.description),
         city:           form.city,
         category:       form.category,
+        subcategories:  form.subcategories as string[],
         tier:           form.tier,
         approval_status: form.approval_status,
         notes:          str(form.notes),
@@ -191,7 +209,7 @@ export function AdminProviderForm({ mode, provider }: Props) {
             <input value={str(form.website)} onChange={(e) => set("website", nullable(e.target.value))} className={inputCls} placeholder="https://…" />
           </Field>
           <Field label="Category *">
-            <select required value={form.category} onChange={(e) => set("category", e.target.value)} className={inputCls}>
+            <select required value={form.category} onChange={(e) => handleCategoryChange(e.target.value)} className={inputCls}>
               <option value="">Select…</option>
               {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
@@ -203,6 +221,47 @@ export function AdminProviderForm({ mode, provider }: Props) {
             </select>
           </Field>
         </div>
+
+        {/* Subcategory picker */}
+        {subcategoryOptions.length > 0 && (
+          <div className="mt-4">
+            <div className="flex items-baseline justify-between mb-1">
+              <label className="text-xs font-semibold text-gray-500">
+                Specialties <span className="font-normal text-gray-400">(up to 3)</span>
+              </label>
+              <span className="text-xs text-gray-400">
+                {(form.subcategories as string[]).length}/3
+              </span>
+            </div>
+            <div className="border border-gray-200 rounded-lg overflow-hidden">
+              <div className="max-h-44 overflow-y-auto py-1">
+                {subcategoryOptions.map((sub) => {
+                  const checked  = (form.subcategories as string[]).includes(sub.slug);
+                  const disabled = !checked && (form.subcategories as string[]).length >= 3;
+                  return (
+                    <label
+                      key={sub.slug}
+                      className={`flex items-center gap-2.5 px-3 py-2 cursor-pointer text-sm transition-colors ${
+                        checked   ? "bg-blue-50 text-[#1B4FD8]"
+                        : disabled ? "opacity-40 cursor-not-allowed text-gray-500"
+                        : "text-[#111827] hover:bg-gray-50"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        disabled={disabled}
+                        onChange={() => toggleSubcategory(sub.slug)}
+                        className="w-3.5 h-3.5 rounded border-gray-300 text-[#1B4FD8]"
+                      />
+                      {sub.name}
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
         <div className="mt-4">
           <Field label="Description">
             <textarea rows={4} value={str(form.description)} onChange={(e) => set("description", nullable(e.target.value))} className={`${inputCls} resize-none`} maxLength={500} />

@@ -23,26 +23,27 @@ const STEP_LABELS = ["Plan", "Business", "Account", "Review"] as const;
 export function SignupFlow({ initialPlan, initialBilling }: Props) {
   const [step, setStep] = useState(1);
 
-  // Form data
   const [plan,    setPlan]    = useState<Plan>(initialPlan);
   const [billing, setBilling] = useState<Billing>(initialBilling);
   const [business, setBusiness] = useState<BusinessData>({
-    businessName: "", category: "", city: "", phone: "", website: "", description: "",
+    businessName: "", category: "", subcategories: [], city: "",
+    phone: "", website: "", description: "",
   });
   const [account, setAccount] = useState<AccountData>({
     contactName: "", email: "", password: "",
   });
 
-  // Submission state
-  const [submitting,     setSubmitting]     = useState(false);
-  const [submitError,    setSubmitError]    = useState<string | null>(null);
-  const [waitlistNeeded, setWaitlistNeeded] = useState(false);
-  const [success,        setSuccess]        = useState<{ foundingMember: boolean } | null>(null);
+  const [submitting,       setSubmitting]       = useState(false);
+  const [submitError,      setSubmitError]      = useState<string | null>(null);
+  const [waitlistNeeded,   setWaitlistNeeded]   = useState(false);
+  const [waitlistSubcatSlug, setWaitlistSubcatSlug] = useState<string | undefined>();
+  const [success,          setSuccess]          = useState<{ foundingMember: boolean } | null>(null);
 
   async function handleSubmit() {
     setSubmitting(true);
     setSubmitError(null);
     setWaitlistNeeded(false);
+    setWaitlistSubcatSlug(undefined);
 
     const result = await signupProvider({
       plan, billing,
@@ -56,11 +57,13 @@ export function SignupFlow({ initialPlan, initialBilling }: Props) {
       setSuccess({ foundingMember: result.foundingMember });
     } else {
       setSubmitError(result.error);
-      if (result.waitlist) setWaitlistNeeded(true);
+      if (result.waitlist) {
+        setWaitlistNeeded(true);
+        setWaitlistSubcatSlug(result.waitlistSubcategory);
+      }
     }
   }
 
-  // Success screen
   if (success) {
     return (
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-8 sm:px-8 sm:py-10 max-w-xl mx-auto">
@@ -78,8 +81,8 @@ export function SignupFlow({ initialPlan, initialBilling }: Props) {
       {/* ── Step indicator ─────────────────────────────── */}
       <div className="flex items-center justify-center mb-8">
         {STEP_LABELS.map((label, i) => {
-          const n        = i + 1;
-          const isDone   = step > n;
+          const n         = i + 1;
+          const isDone    = step > n;
           const isCurrent = step === n;
           return (
             <Fragment key={label}>
@@ -95,9 +98,7 @@ export function SignupFlow({ initialPlan, initialBilling }: Props) {
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                     </svg>
-                  ) : (
-                    n
-                  )}
+                  ) : n}
                 </div>
                 <span
                   className={`text-xs mt-1 font-medium transition-colors ${
@@ -159,6 +160,7 @@ export function SignupFlow({ initialPlan, initialBilling }: Props) {
             submitting={submitting}
             submitError={submitError}
             waitlistNeeded={waitlistNeeded}
+            waitlistSubcategorySlug={waitlistSubcatSlug}
             onSubmit={handleSubmit}
             onBack={() => setStep(3)}
             onEditStep={(s) => setStep(s)}

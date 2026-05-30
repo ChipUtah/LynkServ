@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import type { Provider } from "@/lib/supabase/types";
+import { getSubcategoryNames } from "@/lib/subcategories";
 
 // ─── Data fetching ────────────────────────────────────────────
 
@@ -310,9 +311,23 @@ export default async function ProviderProfilePage({ params }: PageProps) {
                   <TierBadge tier={p.tier} />
                 </div>
 
-                <p className="text-gray-500 mb-3">
+                <p className="text-gray-500 mb-2">
                   {p.category} &nbsp;·&nbsp; {p.city}, UT
                 </p>
+
+                {/* Subcategory tags */}
+                {p.subcategories?.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mb-3">
+                    {getSubcategoryNames(p.subcategories).map((name) => (
+                      <span
+                        key={name}
+                        className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-blue-50 text-[#1B4FD8] border border-blue-100"
+                      >
+                        {name}
+                      </span>
+                    ))}
+                  </div>
+                )}
 
                 {/* Rating */}
                 {p.google_rating != null && (

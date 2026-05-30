@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { joinWaitlist } from "@/lib/actions/signup";
+import { getSubcategoryNames } from "@/lib/subcategories";
 
 type Plan    = "basic" | "standard" | "featured";
 type Billing = "monthly" | "annual";
@@ -11,6 +12,7 @@ interface Props {
   billing: Billing;
   businessName: string;
   category: string;
+  subcategories: string[];
   city: string;
   phone: string;
   website: string;
@@ -20,6 +22,7 @@ interface Props {
   submitting: boolean;
   submitError: string | null;
   waitlistNeeded: boolean;
+  waitlistSubcategorySlug?: string;
   onSubmit: () => void;
   onBack: () => void;
   onEditStep: (step: number) => void;
@@ -35,7 +38,7 @@ const PRICES: Record<Plan, { monthly: number; annual: number; total: number }> =
 function SectionRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex gap-3">
-      <span className="text-sm text-gray-400 w-24 shrink-0">{label}</span>
+      <span className="text-sm text-gray-400 w-28 shrink-0">{label}</span>
       <span className="text-sm text-[#111827] font-medium">{value || "—"}</span>
     </div>
   );
@@ -54,16 +57,19 @@ function EditLink({ onClick }: { onClick: () => void }) {
 }
 
 export function StepReview({
-  plan, billing, businessName, category, city, phone, website, description,
-  contactName, email, submitting, submitError, waitlistNeeded,
+  plan, billing, businessName, category, subcategories, city,
+  phone, website, description, contactName, email,
+  submitting, submitError, waitlistNeeded, waitlistSubcategorySlug,
   onSubmit, onBack, onEditStep,
 }: Props) {
   const prices = PRICES[plan];
   const price  = billing === "monthly" ? prices.monthly : prices.annual;
 
-  const [joining,     setJoining]     = useState(false);
-  const [joinedWL,    setJoinedWL]    = useState(false);
-  const [joinError,   setJoinError]   = useState<string | null>(null);
+  const subcategoryNames = getSubcategoryNames(subcategories);
+
+  const [joining,   setJoining]   = useState(false);
+  const [joinedWL,  setJoinedWL]  = useState(false);
+  const [joinError, setJoinError] = useState<string | null>(null);
 
   async function handleJoinWaitlist() {
     setJoining(true);
@@ -73,6 +79,7 @@ export function StepReview({
       email,
       city,
       category,
+      subcategorySlug: waitlistSubcategorySlug,
       tier: plan === "standard" ? "Standard" : "Featured",
     });
     setJoining(false);
@@ -113,12 +120,27 @@ export function StepReview({
         <div className="space-y-2">
           <SectionRow label="Name"     value={businessName} />
           <SectionRow label="Category" value={category} />
+          {subcategoryNames.length > 0 && (
+            <div className="flex gap-3">
+              <span className="text-sm text-gray-400 w-28 shrink-0">Specialties</span>
+              <div className="flex flex-wrap gap-1.5">
+                {subcategoryNames.map((n) => (
+                  <span
+                    key={n}
+                    className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-100 text-[#1B4FD8]"
+                  >
+                    {n}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
           <SectionRow label="City"     value={city ? `${city}, UT` : ""} />
           {phone   && <SectionRow label="Phone"   value={phone} />}
           {website && <SectionRow label="Website" value={website} />}
           {description && (
             <div className="flex gap-3 pt-1">
-              <span className="text-sm text-gray-400 w-24 shrink-0">About</span>
+              <span className="text-sm text-gray-400 w-28 shrink-0">About</span>
               <span className="text-sm text-[#111827] line-clamp-3">{description}</span>
             </div>
           )}
@@ -132,8 +154,8 @@ export function StepReview({
           <EditLink onClick={() => onEditStep(3)} />
         </div>
         <div className="space-y-2">
-          <SectionRow label="Name"  value={contactName} />
-          <SectionRow label="Email" value={email} />
+          <SectionRow label="Name"     value={contactName} />
+          <SectionRow label="Email"    value={email} />
           <SectionRow label="Password" value="••••••••" />
         </div>
       </div>
@@ -142,10 +164,10 @@ export function StepReview({
       {waitlistNeeded && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-5">
           <p className="font-semibold text-[#111827] mb-1 text-sm">
-            {PLAN_LABELS[plan]} spots in {city} · {category} are full
+            {PLAN_LABELS[plan]} spots in {city} are full for this specialty
           </p>
           <p className="text-sm text-gray-600 mb-4">
-            We limit {PLAN_LABELS[plan]} to 3 listings per city &amp; category to
+            We limit {PLAN_LABELS[plan]} to 3 listings per city &amp; specialty to
             protect quality. Join the waitlist and we&apos;ll email you when a spot opens.
           </p>
           {joinedWL ? (

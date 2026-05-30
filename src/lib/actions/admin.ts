@@ -89,6 +89,7 @@ export interface AdminUpdateData {
   slug: string | null;
   city: string;
   category: string;
+  subcategories: string[];
   tier: Tier;
   approval_status: ApprovalStatus;
   billing_active: boolean;
@@ -149,6 +150,7 @@ export interface AdminCreateData {
   description: string;
   city: string;
   category: string;
+  subcategories: string[];
   tier: Tier;
   approval_status: ApprovalStatus;
   notes: string;
@@ -174,21 +176,22 @@ export async function createProviderAdmin(
   const { data: row, error } = await sb
     .from("providers")
     .insert({
-      user_id:        null,
-      business_name:  data.business_name.trim(),
-      contact_name:   data.contact_name.trim() || null,
-      email:          data.email.trim().toLowerCase(),
-      phone:          data.phone.trim() || null,
-      website:        normalizeUrl(data.website),
-      description:    data.description.trim() || null,
-      city:           data.city,
-      category:       data.category,
-      tier:           data.tier,
+      user_id:         null,
+      business_name:   data.business_name.trim(),
+      contact_name:    data.contact_name.trim() || null,
+      email:           data.email.trim().toLowerCase(),
+      phone:           data.phone.trim() || null,
+      website:         normalizeUrl(data.website),
+      description:     data.description.trim() || null,
+      city:            data.city,
+      category:        data.category,
+      subcategories:   data.subcategories.slice(0, 3),
+      tier:            data.tier,
       approval_status: data.approval_status,
-      billing_active: false,
+      billing_active:  false,
       founding_member: false,
       slug,
-      notes:          data.notes.trim() || null,
+      notes:           data.notes.trim() || null,
     })
     .select("id")
     .single();

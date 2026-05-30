@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import { CITIES, CATEGORIES } from "@/lib/supabase/types";
+import { getSubcategoriesByCategory } from "@/lib/subcategories";
 
 export interface BusinessData {
   businessName: string;
   category: string;
+  subcategories: string[]; // slugs, up to 3
   city: string;
   phone: string;
   website: string;
@@ -20,20 +22,48 @@ interface Props {
 }
 
 const DESC_MAX = 500;
+const MAX_SUBCATEGORIES = 3;
 
 export function StepBusiness({ data, onChange, onNext, onBack }: Props) {
   const [errors, setErrors] = useState<Partial<Record<keyof BusinessData, string>>>({});
+  const [subcatSearch, setSubcatSearch] = useState("");
 
-  function set(field: keyof BusinessData, value: string) {
+  const availableSubcats = data.category
+    ? getSubcategoriesByCategory(data.category)
+    : [];
+
+  const filteredSubcats = subcatSearch.trim()
+    ? availableSubcats.filter((s) =>
+        s.name.toLowerCase().includes(subcatSearch.toLowerCase())
+      )
+    : availableSubcats;
+
+  function set(field: keyof BusinessData, value: BusinessData[keyof BusinessData]) {
     onChange({ ...data, [field]: value });
     if (errors[field]) setErrors((e) => ({ ...e, [field]: undefined }));
   }
 
+  function handleCategoryChange(newCategory: string) {
+    // Clear subcategories when category changes
+    onChange({ ...data, category: newCategory, subcategories: [] });
+    setSubcatSearch("");
+    setErrors((e) => ({ ...e, category: undefined }));
+  }
+
+  function toggleSubcategory(slug: string) {
+    const current = data.subcategories;
+    if (current.includes(slug)) {
+      set("subcategories", current.filter((s) => s !== slug));
+    } else if (current.length < MAX_SUBCATEGORIES) {
+      set("subcategories", [...current, slug]);
+    }
+  }
+
   function validate() {
-    const e: typeof errors = {};
+    const e: Partial<Record<keyof BusinessData, string>> = {};
     if (!data.businessName.trim()) e.businessName = "Business name is required.";
-    if (!data.category)           e.category     = "Select a category.";
-    if (!data.city)               e.city         = "Select a city.";
+    if (!data.category)           e.category      = "Select a category.";
+    if (!data.city)               e.city          = "Select a city.";
     return e;
   }
 
@@ -42,6 +72,8 @@ export function StepBusiness({ data, onChange, onNext, onBack }: Props) {
     if (Object.keys(e).length > 0) { setErrors(e); return; }
     onNext();
   }
+
+  const atMax = data.subcategories.length >= MAX_SUBCATEGORIES;
 
   return (
     <div>
@@ -78,7 +110,7 @@ export function StepBusiness({ data, onChange, onNext, onBack }: Props) {
             </label>
             <select
               value={data.category}
-              onChange={(e) => set("category", e.target.value)}
+              onChange={(e) => handleCategoryChange(e.target.value)}
               className={`w-full px-4 py-3 rounded-xl border text-sm text-[#111827] bg-white outline-none transition-colors cursor-pointer ${
                 errors.category ? "border-red-300" : "border-gray-200 focus:border-[#1B4FD8]"
               }`}
@@ -114,6 +146,98 @@ export function StepBusiness({ data, onChange, onNext, onBack }: Props) {
             )}
           </div>
         </div>
+
+        {/* Subcategory picker — shown after category selected */}
+        {data.category && availableSubcats.length > 0 && (
+          <div>
+            <div className="flex items-baseline justify-between mb-1.5">
+              <label className="text-sm font-semibold text-[#111827]">
+                Specialties{" "}
+                <span className="text-gray-400 font-normal">(optional — up to 3)</span>
+              </label>
+              <span className={`text-xs font-medium ${atMax ? "text-[#1B4FD8]" : "text-gray-400"}`}>
+                {data.subcategories.length}/{MAX_SUBCATEGORIES} selected
+              </span>
+            </div>
+
+            <div className="border border-gray-200 rounded-xl overflow-hidden">
+              {/* Search within subcategories (shown when > 8 options) */}
+              {availableSubcats.length > 8 && (
+                <div className="border-b border-gray-100 px-3 py-2">
+                  <input
+                    type="text"
+                    value={subcatSearch}
+                    onChange={(e) => setSubcatSearch(e.target.value)}
+                    placeholder="Filter specialties…"
+                    className="w-full text-sm text-[#111827] outline-none placeholder:text-gray-400"
+                  />
+                </div>
+              )}
+
+              {/* Checkbox list */}
+              <div className="max-h-52 overflow-y-auto py-2">
+                {filteredSubcats.length === 0 ? (
+                  <p className="px-4 py-3 text-sm text-gray-400">No matches</p>
+                ) : (
+                  filteredSubcats.map((sub) => {
+                    const checked  = data.subcategories.includes(sub.slug);
+                    const disabled = !checked && atMax;
+                    return (
+                      <label
+                        key={sub.slug}
+                        className={`flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors ${
+                          checked   ? "bg-blue-50"
+                          : disabled ? "opacity-40 cursor-not-allowed"
+                          : "hover:bg-gray-50"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          disabled={disabled}
+                          onChange={() => toggleSubcategory(sub.slug)}
+                          className="w-4 h-4 rounded border-gray-300 text-[#1B4FD8] cursor-pointer"
+                        />
+                        <span className="text-sm text-[#111827]">{sub.name}</span>
+                      </label>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+
+            {/* Selected chips */}
+            {data.subcategories.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {data.subcategories.map((slug) => {
+                  const name = availableSubcats.find((s) => s.slug === slug)?.name ?? slug;
+                  return (
+                    <span
+                      key={slug}
+                      className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full bg-[#1B4FD8] text-white"
+                    >
+                      {name}
+                      <button
+                        type="button"
+                        onClick={() => toggleSubcategory(slug)}
+                        className="ml-0.5 hover:opacity-70 transition-opacity"
+                        aria-label={`Remove ${name}`}
+                      >
+                        ×
+                      </button>
+                    </span>
+                  );
+                })}
+              </div>
+            )}
+
+            {atMax && (
+              <p className="text-xs text-[#1B4FD8] font-medium mt-1.5">
+                Maximum 3 specialties selected.
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Phone + Website */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

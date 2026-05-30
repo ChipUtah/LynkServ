@@ -20,6 +20,7 @@ export interface Provider {
   // Location & Category
   city: string;
   category: string;
+  subcategories: string[];
 
   // Membership
   tier: Tier;
