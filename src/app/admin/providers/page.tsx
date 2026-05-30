@@ -169,7 +169,7 @@ export default async function AdminProvidersPage({ searchParams }: PageProps) {
                           <form action={approveProvider.bind(null, p.id)}>
                             <button
                               type="submit"
-                              className="text-xs font-semibold text-green-700 hover:text-green-900 transition-colors px-2 py-1.5 min-h-[32px]"
+                              className="text-xs font-semibold text-green-700 hover:text-green-900 transition-colors px-3 min-h-[44px] flex items-center"
                             >
                               Approve
                             </button>
@@ -179,7 +179,7 @@ export default async function AdminProvidersPage({ searchParams }: PageProps) {
                           <form action={suspendProvider.bind(null, p.id)}>
                             <button
                               type="submit"
-                              className="text-xs font-semibold text-red-500 hover:text-red-700 transition-colors px-2 py-1.5 min-h-[32px]"
+                              className="text-xs font-semibold text-red-500 hover:text-red-700 transition-colors px-3 min-h-[44px] flex items-center"
                             >
                               Suspend
                             </button>
@@ -187,7 +187,7 @@ export default async function AdminProvidersPage({ searchParams }: PageProps) {
                         )}
                         <Link
                           href={`/admin/providers/${p.id}`}
-                          className="text-xs font-semibold text-[#1B4FD8] hover:underline"
+                          className="text-xs font-semibold text-[#1B4FD8] hover:underline px-3 min-h-[44px] flex items-center"
                         >
                           Edit
                         </Link>

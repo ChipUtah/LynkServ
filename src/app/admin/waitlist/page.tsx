@@ -51,11 +51,13 @@ export default async function WaitlistPage() {
             <table className="w-full text-sm">
               <thead className="bg-[#F8F9FA] border-b border-gray-100">
                 <tr>
-                  {["Business", "Email", "City · Category", "Tier", "Date", "Contacted", "Actions"].map((h) => (
-                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                      {h}
-                    </th>
-                  ))}
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Business</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:table-cell">Email</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">City · Category</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Tier</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider hidden lg:table-cell">Date</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Contacted</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
@@ -64,8 +66,8 @@ export default async function WaitlistPage() {
                     <td className="px-4 py-3 font-medium text-[#111827] whitespace-nowrap">
                       {e.business_name ?? "—"}
                     </td>
-                    <td className="px-4 py-3 text-gray-600 text-xs">{e.email}</td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 text-gray-600 text-xs hidden sm:table-cell">{e.email}</td>
+                    <td className="px-4 py-3 hidden md:table-cell">
                       <p className="text-xs text-gray-700 whitespace-nowrap">{e.city}</p>
                       <p className="text-xs text-gray-400">{e.category}</p>
                     </td>
@@ -74,7 +76,7 @@ export default async function WaitlistPage() {
                         {e.tier}
                       </span>
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-xs text-gray-400">
+                    <td className="px-4 py-3 whitespace-nowrap text-xs text-gray-400 hidden lg:table-cell">
                       {new Date(e.created_at).toLocaleDateString("en-US", {
                         month: "short", day: "numeric", year: "numeric",
                       })}
@@ -83,7 +85,7 @@ export default async function WaitlistPage() {
                       <form action={markWaitlistContacted.bind(null, e.id, !e.contacted)}>
                         <button
                           type="submit"
-                          className={`text-xs font-semibold px-2.5 py-1 rounded-lg transition-colors ${
+                          className={`text-xs font-semibold px-3 min-h-[44px] flex items-center rounded-lg transition-colors whitespace-nowrap ${
                             e.contacted
                               ? "bg-gray-100 text-gray-500 hover:bg-gray-200"
                               : "bg-green-100 text-green-700 hover:bg-green-200"
@@ -97,7 +99,7 @@ export default async function WaitlistPage() {
                       <form action={deleteWaitlistEntry.bind(null, e.id)}>
                         <button
                           type="submit"
-                          className="text-xs text-red-400 hover:text-red-600 transition-colors"
+                          className="text-xs text-red-400 hover:text-red-600 transition-colors px-3 min-h-[44px] flex items-center"
                           onClick={(ev) => { if (!confirm("Delete this entry?")) ev.preventDefault(); }}
                         >
                           Delete

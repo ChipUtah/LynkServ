@@ -117,7 +117,7 @@ export function BillingActions({
               key={p}
               type="button"
               onClick={() => setPlan(p)}
-              className={`py-2 rounded-xl text-sm font-semibold border-2 transition-colors capitalize ${
+              className={`min-h-[44px] rounded-xl text-sm font-semibold border-2 transition-colors capitalize ${
                 plan === p
                   ? "border-[#1B4FD8] bg-blue-50 text-[#1B4FD8]"
                   : "border-gray-100 text-gray-500 hover:border-gray-200"
@@ -132,17 +132,21 @@ export function BillingActions({
       {/* Billing toggle */}
       <div className="flex items-center gap-3">
         <span
-          className={`text-sm cursor-pointer ${billing === "monthly" ? "font-semibold text-[#111827]" : "text-gray-400"}`}
+          className={`text-sm cursor-pointer select-none ${billing === "monthly" ? "font-semibold text-[#111827]" : "text-gray-400"}`}
           onClick={() => setBilling("monthly")}
         >
           Monthly
         </span>
+        {/* Enlarged tap area around small toggle */}
         <button
           type="button"
           onClick={() => setBilling(billing === "monthly" ? "annual" : "monthly")}
-          className={`relative w-10 h-5 rounded-full transition-colors focus:outline-none ${billing === "annual" ? "bg-[#1B4FD8]" : "bg-gray-200"}`}
+          className="flex items-center justify-center p-2.5 -m-2.5 focus:outline-none"
+          aria-label="Toggle billing period"
         >
-          <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${billing === "annual" ? "translate-x-5" : ""}`} />
+          <span className={`relative flex w-10 h-5 rounded-full transition-colors ${billing === "annual" ? "bg-[#1B4FD8]" : "bg-gray-200"}`}>
+            <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${billing === "annual" ? "translate-x-5" : ""}`} />
+          </span>
         </button>
         <div className="flex items-center gap-1.5">
           <span

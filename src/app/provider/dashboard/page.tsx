@@ -111,7 +111,7 @@ export default async function DashboardOverview() {
 
       {/* Trial */}
       {daysLeft !== null && (
-        <div className="mt-4 bg-white rounded-2xl border border-gray-100 p-5 flex items-center justify-between gap-4">
+        <div className="mt-4 bg-white rounded-2xl border border-gray-100 p-5 flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="font-semibold text-[#111827] text-sm">
               {daysLeft > 0 ? `${daysLeft} days left in your free trial` : "Free trial ended"}
@@ -176,7 +176,7 @@ export default async function DashboardOverview() {
           </p>
         </div>
       ) : (
-        <div className="mt-8 bg-[#F8F9FA] border border-gray-100 rounded-2xl p-5 flex items-start justify-between gap-4">
+        <div className="mt-8 bg-[#F8F9FA] border border-gray-100 rounded-2xl p-5 flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="font-semibold text-[#111827] text-sm mb-1">
               Unlock Analytics

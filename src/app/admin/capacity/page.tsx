@@ -55,7 +55,7 @@ export default async function CapacityPage() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-[#111827]">Scarcity Capacity</h1>
         <p className="text-sm text-gray-500 mt-1">
-          Max {CAP} Featured + {CAP} Standard per city &amp; category. Showing combinations with at least one listing.
+          Max {CAP} Featured + {CAP} Standard per city &amp; subcategory. Showing combinations with at least one listing.
         </p>
       </div>
 
@@ -106,9 +106,9 @@ export default async function CapacityPage() {
                     <td className="px-4 py-3">
                       <Link
                         href={`/admin/providers?city=${encodeURIComponent(city)}&category=${encodeURIComponent(category)}`}
-                        className="text-xs text-[#1B4FD8] hover:underline whitespace-nowrap"
+                        className="text-xs text-[#1B4FD8] hover:underline whitespace-nowrap min-h-[44px] flex items-center"
                       >
-                        View providers →
+                        View →
                       </Link>
                     </td>
                   </tr>

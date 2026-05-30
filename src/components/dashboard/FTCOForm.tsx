@@ -157,7 +157,7 @@ export function FTCOForm({ provider: p }: { provider: Provider }) {
       <button
         type="submit"
         disabled={saving}
-        className="bg-[#1B4FD8] text-white font-bold px-8 py-3 rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-60 flex items-center gap-2"
+        className="w-full sm:w-auto bg-[#1B4FD8] text-white font-bold px-8 py-3 min-h-[44px] rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
       >
         {saving ? (
           <>

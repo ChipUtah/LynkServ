@@ -14,7 +14,7 @@ export default function LoginPage() {
         LynkServ
       </Link>
 
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm w-full max-w-sm px-8 py-8">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm w-full max-w-sm px-5 py-8 sm:px-8">
         <h1 className="text-xl font-bold text-[#111827] mb-1">Provider sign in</h1>
         <p className="text-sm text-gray-500 mb-7">
           Manage your listing and profile.
